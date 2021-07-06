@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <RootNamespace>journey_markdown_converter</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="JourneyZipReader.fs"/>
+        <Compile Include="JourneyEntryParser.fs"/>
+        <Compile Include="Program.fs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="ReverseMarkdown" Version="3.19.0"/>
+        <!--<PackageReference Include="System.Text.Json" Version="5.0.2" />-->
+        <PackageReference Include="Newtonsoft.Json" Version="9.0.1"/>
+        <PackageReference Include="Handlebars.Net" Version="2.0.8"/>
+        <PackageReference Include="NodaTime" Version="3.0.5"/>
+    </ItemGroup>
+
+</Project>
