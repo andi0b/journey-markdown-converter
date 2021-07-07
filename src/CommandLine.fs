@@ -6,11 +6,12 @@ open System.CommandLine.Invocation
 open System.IO
 
 type Options =
-    { InFile: string
+    { InFile: FileInfo
       OutDirectory: DirectoryInfo
       OverrideExisting: bool
       MdGithubFlavoured: bool
-      MdListToken: string }
+      MdListBulletChar: char
+      MdSmartHrefHandling: bool }
 
 
 
@@ -54,9 +55,14 @@ let rootCommand (main: Options -> int) dumpTemplate =
               getDefaultValue = (fun () -> false),
               description = "Markdown: enable GitHub flavoured"
           )
-          Option<string>(
-              alias = "--md-list-token",
-              getDefaultValue = (fun () -> "-"),
-              description = "Markdown: List token"
+          Option<char>(
+              alias = "--md-list-bullet-char",
+              getDefaultValue = (fun () -> '-'),
+              description = "Markdown: List bullet character"
+          )
+          Option<bool>(
+              alias = "--md-smart-href-handling",
+              getDefaultValue = (fun () -> true),
+              description = "Markdown: Smart href Handling"
           ) ]: Symbol list
     )

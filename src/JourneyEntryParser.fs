@@ -27,7 +27,7 @@ type JourneyJsonEntry =
       address: string
       label: string
       folder: string
-      sentiment: int
+      sentiment: double
       favourite: bool
       music_title: string
       music_artist: string
@@ -40,7 +40,9 @@ type JourneyEntry =
       date_modified: DateTimeOffset
       date_journal: DateTimeOffset
       text_md: string
-      preview_text_md: string }
+      preview_text_md: string
+      preview_text_md_oneline:string
+      photos: string array }
 
     member x.date_modified_utc = x.date_modified.ToUniversalTime()
 
@@ -53,7 +55,7 @@ module JourneyEntry =
         DateTimeZoneProviders.Tzdb.GetZoneOrNull(tz)
         |? DateTimeZoneProviders.Bcl.GetSystemDefault()
 
-    let fromJourneyJsonEntry mdConverter j =
+    let fromJourneyJsonEntry (mdConverter : MdConverter) j =
 
         let tz = parseTz j.timezone
 
@@ -63,13 +65,18 @@ module JourneyEntry =
                 .InZone(tz)
                 .ToDateTimeOffset()
 
-        let toMd = mdConverter << MdConverter.convertHtml
+        let toMd = mdConverter |> MdConverter.convertHtml  
 
+        let preview_text_md = j.preview_text |> toMd
+        let preview_text_md_oneline = preview_text_md.Split(Environment.NewLine, 2).[0]
+        
         { id = j.id
           date_modified = j.date_modified |> parseDate
           date_journal = j.date_journal |> parseDate
           text_md = j.text |> toMd
-          preview_text_md = j.preview_text |> toMd }
+          preview_text_md = preview_text_md
+          preview_text_md_oneline = preview_text_md_oneline
+          photos = j.photos }
 
 let private deserializeFromStream<'a> stream =
     use textReader =
@@ -81,18 +88,21 @@ let private deserializeFromStream<'a> stream =
         .CreateDefault()
         .Deserialize<'a>(jsonReader)
 
-let private parseEntry stream =
+let private parseEntry (openStream: unit->Stream) =
+    
+    use stream1 = openStream()
     let typed =
-        deserializeFromStream<JourneyJsonEntry> stream
+        deserializeFromStream<JourneyJsonEntry> stream1
+    stream1.Close()
 
-    stream.Position <- int64 0
-    let untyped = deserializeFromStream<JObject> stream
+    use stream2 = openStream()
+    let untyped = deserializeFromStream<JObject> stream2
+    stream2.Close()
 
     (typed, untyped)
     
 let readZipFile (entry: JourneyZipReader.JourneyZipEntry) mdConverter =
-    use stream = entry.zipEntry.Open()
-    let typed, untyped = parseEntry stream
+    let typed, untyped = parseEntry entry.zipEntry.Open
     
     let jEntry = JourneyEntry.fromJourneyJsonEntry mdConverter typed
     

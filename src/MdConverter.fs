@@ -1,14 +1,19 @@
 ﻿namespace journey_markdown_converter
  
+open CommandLine
+ 
 type MdConverter =
     { RmdConverter: ReverseMarkdown.Converter
-      Options: CommandLine.Options }
+      Options: Options }
 
 module MdConverter =
-    let convertHtml html mdConverter = mdConverter.RmdConverter.Convert html
+    let convertHtml mdConverter html = mdConverter.RmdConverter.Convert html
 
     let createFrmSettings options =
         let config = ReverseMarkdown.Config()
-        config.GithubFlavored <- true
+        config.GithubFlavored <- options.MdGithubFlavoured
+        config.ListBulletChar <- options.MdListBulletChar
+        config.SmartHrefHandling <- options.MdSmartHrefHandling
+        
         { RmdConverter = ReverseMarkdown.Converter(config)
           Options = options }
