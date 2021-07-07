@@ -27,51 +27,49 @@ let mainTyped options =
             Some(new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
 
 
-    let hbFormatter =
+
+    let bodyFormatter, fileNameFormatter =
         let formatter =
             HandlebarsFormatter.createFromOptions options
 
-        HandlebarsFormatter.format formatter
+        ((HandlebarsFormatter.format formatter.bodyTemplate),
+         (HandlebarsFormatter.format formatter.fileNameTemplate)
+         >> formatter.fileNameCleaner)
+
 
 
     let iter entry =
-        let typed, untyped =
-            JourneyEntryParser.readZipFile entry mdConverter
+        let typed, untyped = readZipFile entry mdConverter
 
         options.OutDirectory.Create()
+
+        let fileName = fileNameFormatter (typed, untyped)
+        let fileExtension = ".md"
+
+        let attachmentFileName attachment =
+            $"{fileName}-{attachment.id.AttachmentId}{attachment.id.Extension}"
 
         let photoIds =
             query {
                 for photo in typed.photos do
                     join attachment in entry.attachments on (photo = attachment.id.Id)
-
-                    select (
-                        attachment.id.AttachmentId
-                        + attachment.id.Extension
-                    )
+                    select (attachmentFileName attachment)
             }
             |> Seq.toArray
 
         let typed2 = { typed with photos = photoIds }
 
-        let formatted = hbFormatter typed2 untyped
-
-        let fileName = formatted.fileName.Trim()
-        let fileExtension = ".md"
-
-
+        let formatted = bodyFormatter (typed2, untyped)
 
         let writeMd (stream: Stream) =
             use writer = new StreamWriter(stream)
-            writer.Write(formatted.content)
+            writer.Write(formatted)
 
         let writeAttachments () =
 
             let writeAttachment (attachment: JourneyZipEntry) =
-                let attachmentFileName =
-                    $"{fileName}-{attachment.id.AttachmentId}{attachment.id.Extension}"
 
-                openFile attachmentFileName
+                openFile (attachmentFileName attachment)
                 |> Option.map
                     (fun stream ->
                         use stream = stream

@@ -11,16 +11,14 @@ open HandlebarsDotNet.Helpers.Enums
 open Microsoft.FSharp.Reflection
 open Newtonsoft.Json.Linq
 open journey_markdown_converter.JourneyEntryParser
+open journey_markdown_converter.CommandLine
 
 let defaultTemplate = """{{!
 This is a handlebars template for formatting the output
 
 It is using HandleBars.NET with all it's base extensions, see this pages for documentation
 - https://github.com/Handlebars-Net/Handlebars.Net.Helpers/#using
-
-The first line of the template is used as a file name
 }}
-{{String.Format date_journal "yyyy-MM-dd"}}-{{String.Truncate preview_text_md_oneline 100}}
 ---
 date_journal: {{String.Format date_journal "o"}}
 modified: {{String.Format date_modified "o"}}
@@ -41,7 +39,7 @@ weather:
 
 # Photos
 {{#each photos}}
-![photo]({{String.Format ../date_journal "yyyy-MM-dd"}}-{{String.Truncate ../preview_text_md_oneline 100}}-{{this}})
+![photo]({{this}})
 {{/each}}
 """
 
@@ -57,26 +55,27 @@ let createFromOptions options =
 
     HandlebarsHelpers.Register(hb)
 
-    hb.Compile(defaultTemplate)
+    let cleanFileName (additionalChars: char seq) (str: string)  =
+        Path.GetInvalidFileNameChars()
+        |> Seq.append additionalChars
+        |> Seq.fold (fun (s: string) c -> s.Replace(c, ' ')) str
+        |> (fun s -> s.Trim())
 
-let cleanForFileName (str: string) =
-    Path.GetInvalidFileNameChars()
-    |> Seq.fold (fun (s: string) c -> s.Replace(c, ' ')) str
+   
+    {| bodyTemplate = hb.Compile(defaultTemplate)
+       fileNameTemplate = hb.Compile(options.FileNameTemplate)
+       fileNameCleaner = cleanFileName options.CleanFromFileNameChars |}
 
-let format (template: HandlebarsTemplate<obj, obj>) (typed: JourneyEntry) (untyped: JObject) =
+
+let format (template: HandlebarsTemplate<obj, obj>) (typed: JourneyEntry, untyped: JObject) =
 
     let merged = Dictionary<string, Object>()
 
     untyped.Properties()
-    |> Seq.iter (fun prop -> merged.[prop.Name] <- prop.Value)
+    |> Seq.iter (fun prop -> merged.[prop.Name] <- prop.Value.ToObject<Object>())
 
     typeof<JourneyEntry>.GetProperties ()
     |> Seq.map (fun x -> (x.Name, x.GetValue(typed)))
     |> Seq.iter (fun (name, value) -> merged.[name] <- value)
 
-    let renderedText = template.Invoke(merged)
-
-    use sr = new StringReader(renderedText)
-
-    {| fileName = sr.ReadLine() |> cleanForFileName
-       content = sr.ReadToEnd() |}
+    template.Invoke(merged)

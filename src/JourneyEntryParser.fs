@@ -68,7 +68,7 @@ module JourneyEntry =
         let toMd = mdConverter |> MdConverter.convertHtml  
 
         let preview_text_md = j.preview_text |> toMd
-        let preview_text_md_oneline = preview_text_md.Split(Environment.NewLine, 2).[0]
+        let preview_text_md_oneline = preview_text_md.TrimStart([|'\n';'\r';' '|]).Split(Environment.NewLine, 2).[0]
         
         { id = j.id
           date_modified = j.date_modified |> parseDate

@@ -11,7 +11,9 @@ type Options =
       OverrideExisting: bool
       MdGithubFlavoured: bool
       MdListBulletChar: char
-      MdSmartHrefHandling: bool }
+      MdSmartHrefHandling: bool
+      FileNameTemplate:string
+      CleanFromFileNameChars: string }
 
 
 
@@ -64,5 +66,14 @@ let rootCommand (main: Options -> int) dumpTemplate =
               alias = "--md-smart-href-handling",
               getDefaultValue = (fun () -> true),
               description = "Markdown: Smart href Handling"
-          ) ]: Symbol list
+          )
+          Option<string>(
+              alias="--file-name-template",
+              getDefaultValue = (fun()->"""{{String.Format date_journal "yyyy-MM-dd"}} {{String.Truncate preview_text_md_oneline 100}}"""),
+              description = "File name for the created Markdown file")
+          Option<string>(
+              alias="--clean-from-filename-chars",
+              getDefaultValue = (fun()->"[]#."),
+              description = "Additional characters to clean from file name ")
+          ]: Symbol list
     )
