@@ -12,7 +12,7 @@ dotnet run -- <parameters>
 
 # Convert Journey.Cloud data to Markdown
 
-This command line tool takes your export from [Journey.Cloud](https://journey.cloud/) and converts it to a folder of markdowns. It preserves all pictures and data, and let's you customize the output
+This command line tool takes your export from [Journey.Cloud](https://journey.cloud/) and converts it to a folder of markdowns. It preserves all pictures and data, and lets you customize the output.
 
 [![.NET](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml/badge.svg)](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml)
 
@@ -51,3 +51,18 @@ Options:
 Commands:
   dump-template <outfile>  Dumps the default Handlebars template to the specified file
 ```
+
+# Handlebars Templates
+
+The Markdown output and the file name can be completely customized via Handlebars templates.
+
+- see language guide: https://handlebarsjs.com/guide/
+- and all enabled helpers: https://github.com/Handlebars-Net/Handlebars.Net.Helpers/#using
+
+## Default Template
+
+TBD
+
+## Availible Fields
+
+TBD
