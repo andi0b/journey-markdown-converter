@@ -5,6 +5,17 @@ open FsUnit.Xunit
 open journey_markdown_converter
 
 
+type ``Given the JourneyZipReader opens unrelated-zip`` () =
+    let data =
+        JourneyZipReader.readZip "testdata/unrelated.zip"
+    
+    [<Fact>]
+    member x.``when I check the archive, it should not be null``() = data.archive |> should not' (be Null)
+
+    [<Fact>]
+    member x.``there should be some entries``() =
+        data.entries.Length |> should be (greaterThan 0)
+
 
 type ``Given the JourneyZipReader opens journey-multiple-1``() =
 
@@ -21,7 +32,7 @@ type ``Given the JourneyZipReader opens journey-multiple-1``() =
               "1625494143867-82d3goucmybxlxat" ]
 
         data.entries
-        |> List.map (fun x -> x.id)
+        |> List.map (fun x -> x.id.Prefix)
         |> should matchList expectedIds
 
     [<Theory>]
@@ -30,7 +41,7 @@ type ``Given the JourneyZipReader opens journey-multiple-1``() =
     member x.``one specific entry should have specific attachment count`` (id, attachmentCount) =
         let entryWithAttachment =
             data.entries
-            |> Seq.find (fun x -> x.id = id)
+            |> Seq.find (fun x -> x.id.Prefix = id)
 
         entryWithAttachment.attachments.Length
         |> should equal attachmentCount

@@ -88,7 +88,7 @@ let private deserializeFromStream<'a> stream =
         .CreateDefault()
         .Deserialize<'a>(jsonReader)
 
-let private parseEntry (openStream: unit->Stream) =
+let parseEntry (openStream: unit->Stream) =
     
     use stream1 = openStream()
     let typed =

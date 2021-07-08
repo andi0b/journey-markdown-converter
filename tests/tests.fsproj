@@ -8,10 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="testdata\journey-multiple-1.zip">
+        <Content Include="testdata/*">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <Compile Include="Tests.fs" />
+
         <Compile Include="JourneyZipReaderTests.fs" />
         <Compile Include="JourneyEntryParserTests.fs" />
     </ItemGroup>

@@ -40,7 +40,6 @@ let testContent1 = """{
 
 [<Fact>]
 let check ()=
-    let stream = new MemoryStream(Encoding.UTF8.GetBytes(testContent1))
-    let parsed = JourneyEntryParser.parseEntry stream |> Async.RunSynchronously
-    let weather = parsed.ExtensionData.["weather"]
+    let openStream () = new MemoryStream(Encoding.UTF8.GetBytes(testContent1)) :> Stream
+    let parsed = JourneyEntryParser.parseEntry openStream 
     ()
