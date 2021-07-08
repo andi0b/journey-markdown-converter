@@ -1,19 +1,18 @@
-# Convert Journey.Cloud data to Markdown
+# 🔴 Work in Progress 🔴
 
-This command line tool takes your export from [Journey.Cloud](https://journey.cloud/) and converts it to a folder of markdowns. It preserves all pictures and data, and let's you customize the output
-
-[![.NET](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml/badge.svg)](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml)
-
-
-
-
-
-# 🔴 There is no release yet, for now you need to build&run it by yourself
+Some things work, others don't. There is no release yet, for now you need to build&run it by yourself. 
 
 install .NET SDK 6.x (preview) and run
 ```
 dotnet run -- <parameters>
 ```
+
+
+# Convert Journey.Cloud data to Markdown
+
+This command line tool takes your export from [Journey.Cloud](https://journey.cloud/) and converts it to a folder of markdowns. It preserves all pictures and data, and let's you customize the output
+
+[![.NET](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml/badge.svg)](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml)
 
 # How to run
 Download a binary for one of the supported platforms:
