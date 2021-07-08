@@ -4,8 +4,18 @@ This command line tool takes your export from [Journey.Cloud](https://journey.cl
 
 [![.NET](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml/badge.svg)](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml)
 
-# How to run
 
+
+
+
+# 🔴 There is no release yet, for now you need to build&run it by yourself
+
+install .NET SDK 6.x (preview) and run
+```
+dotnet run -- <parameters>
+```
+
+# How to run
 Download a binary for one of the supported platforms:
 - Windows x86
 - Linux x64
