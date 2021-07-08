@@ -4,6 +4,8 @@ Some things work, others don't. There is no release yet, for now you need to bui
 
 install .NET SDK 6.x (preview) and run
 ```
+git clone https://github.com/andi0b/journey-markdown-converter.git
+cd journey-markdown-converter/src
 dotnet run -- <parameters>
 ```
 
