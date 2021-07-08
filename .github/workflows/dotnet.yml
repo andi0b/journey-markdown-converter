@@ -22,5 +22,12 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
+#    - name: Test
+#      run: dotnet test --no-build --verbosity normal
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      uses: zyborg/dotnet-tests-report@v1
+      with:
+        project_path: tests/
+        report_name: journey-markdown-converter-Tests
+        report_title: journey-markdown-converter Tests
+        github_token: ${{ secrets.GITHUB_TOKEN }}
