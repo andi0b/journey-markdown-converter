@@ -34,12 +34,19 @@ jobs:
     
     - name: Test trx
       run: dotnet test --no-build --logger trx
-    - name: Test Report dorny
-      uses: dorny/test-reporter@v1
-      if: success() || failure()    # run this step even if previous step failed
+      
+    - uses: actions/upload-artifact@v2  # upload test results
+      if: success() || failure()        # run this step even if previous step failed
       with:
-        name: journey-markdown-converter Testresults   # Name of the check run which will be created
-        path: tests/TestResults/*trx    # Path to test results
-        reporter: dotnet-trx        # Format of test results
+        name: test-results
+        path: tests/TestResults/*trx  
+      
+#    - name: Test Report dorny
+#      uses: dorny/test-reporter@v1
+#      if: success() || failure()    # run this step even if previous step failed
+#      with:
+#        name: journey-markdown-converter Testresults   # Name of the check run which will be created
+#        path: tests/TestResults/*trx    # Path to test results
+#        reporter: dotnet-trx        # Format of test results
         
         
