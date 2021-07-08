@@ -14,7 +14,7 @@ type ``Given the JourneyZipReader opens unrelated-zip`` () =
 
     [<Fact>]
     member x.``there should be some entries``() =
-        data.entries.Length |> should be (greaterThan 0)
+        data.entries.Length |> should be (equal 0)
 
 
 type ``Given the JourneyZipReader opens journey-multiple-1``() =

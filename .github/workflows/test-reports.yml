@@ -1,7 +1,7 @@
 ﻿name: 'Test Report'
 on:
   workflow_run:
-    workflows: ['.NET']                     # runs after CI workflow
+    workflows: ['.NET Build']                     # runs after CI workflow
     types:
       - completed
 jobs:
@@ -11,6 +11,6 @@ jobs:
       - uses: dorny/test-reporter@v1
         with:
           artifact: test-results            # artifact name
-          name: journey-markdown-converter Testresults   # Name of the check run which will be created
+          name: Test Report                 # Name of the check run which will be created
           path: '*.trx'                     # Path to test results (inside artifact .zip)
           reporter: dotnet-trx              # Format of test results

@@ -2,6 +2,8 @@
 
 This command line tool takes your export from [Journey.Cloud](https://journey.cloud/) and converts it to a folder of markdowns. It preserves all pictures and data, and let's you customize the output
 
+[![.NET](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml/badge.svg)](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml)
+
 # How to run
 
 Download a binary for one of the supported platforms:
