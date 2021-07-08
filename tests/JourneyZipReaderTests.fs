@@ -21,7 +21,7 @@ type ``Given the JourneyZipReader opens journey-multiple-1``() =
               "1625494143867-82d3goucmybxlxat" ]
 
         data.entries
-        |> List.map (fun x -> x.id)
+        |> List.map (fun x -> x.id.Prefix)
         |> should matchList expectedIds
 
     [<Theory>]
@@ -30,7 +30,7 @@ type ``Given the JourneyZipReader opens journey-multiple-1``() =
     member x.``one specific entry should have specific attachment count`` (id, attachmentCount) =
         let entryWithAttachment =
             data.entries
-            |> Seq.find (fun x -> x.id = id)
+            |> Seq.find (fun x -> x.id.Prefix = id)
 
         entryWithAttachment.attachments.Length
         |> should equal attachmentCount
