@@ -5,6 +5,17 @@ open FsUnit.Xunit
 open journey_markdown_converter
 
 
+type ``Given the JourneyZipReader opens unrelated-zip`` () =
+    let data =
+        JourneyZipReader.readZip "testdata/unrelated.zip"
+    
+    [<Fact>]
+    member x.``when I check the archive, it should not be null``() = data.archive |> should not' (be Null)
+
+    [<Fact>]
+    member x.``there should be some entries``() =
+        data.entries.Length |> should be (greaterThan 0)
+
 
 type ``Given the JourneyZipReader opens journey-multiple-1``() =
 
