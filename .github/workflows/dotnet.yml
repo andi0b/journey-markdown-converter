@@ -28,18 +28,18 @@ jobs:
       uses: zyborg/dotnet-tests-report@v1
       with:
         project_path: tests/
-        report_name: journey-markdown-converter-Tests
-        report_title: tests-results
+        report_name: tests-results
+        report_title: journey-markdown-converter Tests 
         github_token: ${{ secrets.GITHUB_TOKEN }}
     
-    - run: npm ci                   # install packages
-    - run: npm test                 # run tests (configured to use jest-junit reporter)
+    - name: Test trx
+      run: dotnet test --no-build --logger trx
     - name: Test Report dorny
       uses: dorny/test-reporter@v1
       if: success() || failure()    # run this step even if previous step failed
       with:
-        name: JEST Tests            # Name of the check run which will be created
-        path: reports/jest-*.xml    # Path to test results
-        reporter: jest-junit        # Format of test results
+        name: journey-markdown-converter Testresults   # Name of the check run which will be created
+        path: tests/TestResults/*trx    # Path to test results
+        reporter: dotnet-trx        # Format of test results
         
         
