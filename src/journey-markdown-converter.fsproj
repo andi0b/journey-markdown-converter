@@ -12,6 +12,7 @@
         <Compile Include="MdConverter.fs" />
         <Compile Include="JourneyEntryParser.fs" />
         <Compile Include="HandlebarsFormatter.fs" />
+        <Compile Include="Converter.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 

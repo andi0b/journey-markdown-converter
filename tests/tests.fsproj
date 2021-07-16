@@ -14,6 +14,7 @@
 
         <Compile Include="JourneyZipReaderTests.fs" />
         <Compile Include="JourneyEntryParserTests.fs" />
+        <Compile Include="CommandLineTests.fs" />
     </ItemGroup>
 
     <ItemGroup>

@@ -91,7 +91,7 @@ module JourneyZipReader =
             let entries =
                 zip.Entries
                 |> Seq.map toJourneyZipEntry
-                |> Seq.groupBy (fun x -> x.id)
+                |> Seq.groupBy (fun x -> x.id.Prefix)
                 |> Seq.map snd
                 |> Seq.choose mainEntryFromGroup
                 |> Seq.toList

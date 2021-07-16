@@ -5,6 +5,7 @@ open System.IO
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 open NodaTime
+open journey_markdown_converter
 
 type JourneyWeather =
     { id: int
@@ -42,7 +43,8 @@ type JourneyEntry =
       text_md: string
       preview_text_md: string
       preview_text_md_oneline:string
-      photos: string array }
+      photos: string array
+      untyped: JObject }
 
     member x.date_modified_utc = x.date_modified.ToUniversalTime()
 
@@ -55,7 +57,7 @@ module JourneyEntry =
         DateTimeZoneProviders.Tzdb.GetZoneOrNull(tz)
         |? DateTimeZoneProviders.Bcl.GetSystemDefault()
 
-    let fromJourneyJsonEntry (mdConverter : MdConverter) j =
+    let fromJourneyJsonEntry (mdConverter : MdConverter) j untyped =
 
         let tz = parseTz j.timezone
 
@@ -76,7 +78,8 @@ module JourneyEntry =
           text_md = j.text |> toMd
           preview_text_md = preview_text_md
           preview_text_md_oneline = preview_text_md_oneline
-          photos = j.photos }
+          photos = j.photos
+          untyped = untyped }
 
 let private deserializeFromStream<'a> stream =
     use textReader =
@@ -101,9 +104,7 @@ let parseEntry (openStream: unit->Stream) =
 
     (typed, untyped)
     
-let readZipFile (entry: JourneyZipReader.JourneyZipEntry) mdConverter =
+let readZipFile (entry: JourneyZipEntry) mdConverter =
     let typed, untyped = parseEntry entry.zipEntry.Open
     
-    let jEntry = JourneyEntry.fromJourneyJsonEntry mdConverter typed
-    
-    (jEntry, untyped)
+    JourneyEntry.fromJourneyJsonEntry mdConverter typed untyped

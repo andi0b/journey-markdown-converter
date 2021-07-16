@@ -10,10 +10,13 @@ open System.IO
 open System.Reflection
 
 type CommandLineOptions =
-    { InFile: FileInfo
-      OutDirectory: DirectoryInfo
+    { InFile: string
+      OutDirectory: string
       OverrideExisting: bool
       Verbose: bool
+      
+      AdditionalTags: string array
+      TagPrefix: string
 
       MdGithubFlavoured: bool
       MdListBulletChar: char
@@ -82,11 +85,20 @@ module CommandLine =
                           """{{String.Format date_journal "yyyy-MM-dd"}} {{String.Truncate preview_text_md_oneline 100}}"""),
                   description = "File name for the created Markdown file"
               )
+              Option<string array>(
+                  aliases = [| "-d"; "--additional-tags" |],
+                  description = "Additional tags that should be added to all files "
+              )
+              Option<string>(
+                  aliases = [| "-p"; "--tag-prefix" |],
+                  description = "Prefix that will be prepended to all tags (but not the additional tags)"
+              )
               Option<string>(
                   alias = "--clean-from-filename-chars",
                   getDefaultValue = (fun () -> "[]#."),
                   description = "Additional characters to clean from file name "
               )
+              
               // md options
               Option<bool>(
                   alias = "--md-github-flavoured",

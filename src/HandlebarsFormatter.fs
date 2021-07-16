@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.Generic
+open System.CommandLine.Parsing
 open System.Globalization
 open System.IO
 open HandlebarsDotNet
@@ -22,6 +23,9 @@ date_journal: {{String.Format date_journal "o"}}
 modified: {{String.Format date_modified "o"}}
 tags:
 {{#each tags}}
+- {{../tagPrefix}}{{this}}
+{{/each}}
+{{#each additionalTags}}
 - {{this}}
 {{/each}}
 location:
@@ -53,22 +57,29 @@ let createHandlebars =
     HandlebarsHelpers.Register(hb)
     hb
 
-let formatJourneyEntry (template: HandlebarsTemplate<obj, obj>) (typed: JourneyEntry, untyped: JObject) =
+let getPropertiesFromJourneyEntry (additionalProperties: (string * obj) seq) journeyEntry =
+
+    let untypedProps =
+        journeyEntry.untyped.Properties()
+        |> Seq.map (fun prop -> (prop.Name, prop.Value.ToObject<Object>()))
+
+    let typedProps =
+        typeof<JourneyEntry>.GetProperties ()
+        |> Seq.map (fun x -> (x.Name, x.GetValue(journeyEntry)))
 
     let merged = Dictionary<string, Object>()
 
-    untyped.Properties()
-    |> Seq.iter (fun prop -> merged.[prop.Name] <- prop.Value.ToObject<Object>())
-
-    typeof<JourneyEntry>.GetProperties ()
-    |> Seq.map (fun x -> (x.Name, x.GetValue(typed)))
+    Seq.concat [ untypedProps
+                 typedProps
+                 additionalProperties ]
     |> Seq.iter (fun (name, value) -> merged.[name] <- value)
 
-    template.Invoke(merged)
+    merged
 
 let hbCompileSafe (hb: IHandlebars) (template: string) name =
     try
-        hb.Compile(template)
+        let compiled = hb.Compile(template)
+        (fun (dict: Dictionary<string, obj>) -> compiled.Invoke(dict))
     with
     | e ->
         raise (
@@ -80,11 +91,11 @@ let hbCompileSafe (hb: IHandlebars) (template: string) name =
             )
         )
 
-let createBodyFormatter hb template =
+let createBodyFormatter hb extractProperties template =
     let compiledTemplate =
         hbCompileSafe hb template "body template"
 
-    formatJourneyEntry compiledTemplate
+    extractProperties >> compiledTemplate
 
 let cleanFileName additionalChars str =
     Path.GetInvalidFileNameChars()
@@ -92,15 +103,21 @@ let cleanFileName additionalChars str =
     |> Seq.fold (fun (s: string) c -> s.Replace(c, ' ')) str
     |> (fun s -> s.Trim())
 
-let createFileNameFormatter hb cleanFromFileNameChars template =
+let createFileNameFormatter hb extractProperties cleanFromFileNameChars template =
     let compiledTemplate =
         hbCompileSafe hb template "body template"
 
-    formatJourneyEntry compiledTemplate
+    extractProperties
+    >> compiledTemplate
     >> cleanFileName cleanFromFileNameChars
 
 let createFromOptions options =
     let hb = createHandlebars
 
-    {| bodyFormatter = createBodyFormatter hb defaultTemplate
-       fileNameFormatter = createFileNameFormatter hb options.CleanFromFileNameChars options.FileNameTemplate   |}
+    let extractProperties =
+        getPropertiesFromJourneyEntry [ ("tagPrefix", options.TagPrefix :> obj)
+                                        ("additionalTags", options.AdditionalTags :> obj) ]
+
+    {| bodyFormatter = createBodyFormatter hb extractProperties defaultTemplate
+       fileNameFormatter =
+           createFileNameFormatter hb extractProperties options.CleanFromFileNameChars options.FileNameTemplate |}
