@@ -1,4 +1,4 @@
-﻿module journey_markdown_converter.JourneyZipReader
+﻿namespace journey_markdown_converter
 
 open System
 open System.IO.Compression
@@ -24,78 +24,81 @@ type JourneyZipArchive =
     interface IDisposable with
         member x.Dispose() = x.archive.Dispose()
 
-let regex =
-    Regex(@"(?<date>[0-9]*)-(?<entryId>[a-zA-Z0-9]*)(-(?<attachmentId>[a-zA-Z0-9]*))?.*(?<extension>\.[a-zA-Z0-9]*)")
 
-let parseFileName fileName =
-    let match' = regex.Match(fileName)
+module JourneyZipReader =
 
-    match match'.Success with
-    | true ->
-        let value (x: string) = match'.Groups.[x].Value
+    let zipFileRegex =
+        Regex(
+            @"(?<date>[0-9]*)-(?<entryId>[a-zA-Z0-9]*)(-(?<attachmentId>[a-zA-Z0-9]*))?.*(?<extension>\.[a-zA-Z0-9]*)"
+        )
 
-        { Id = fileName
-          Prefix = value "date" + "-" + value "entryId"
-          Date = value "date"
-          EntryId = value "entryId"
-          AttachmentId = value "attachmentId"
-          Extension = value "extension" }
+    let parseFileName fileName =
+        let match' = zipFileRegex.Match(fileName)
 
-    | false ->
-        { Id = fileName
-          Prefix = fileName
-          Date = String.Empty
-          EntryId = String.Empty
-          AttachmentId = String.Empty
-          Extension = String.Empty }
+        match match'.Success with
+        | true ->
+            let value (x: string) = match'.Groups.[x].Value
 
-let readZip fileName =
-    let zip = ZipFile.OpenRead fileName
+            { Id = fileName
+              Prefix = value "date" + "-" + value "entryId"
+              Date = value "date"
+              EntryId = value "entryId"
+              AttachmentId = value "attachmentId"
+              Extension = value "extension" }
 
-    try
-        let zipEntryByPrefix =
-            zip.Entries
-            |> Seq.map (fun zipEntry -> (zipEntry, parseFileName zipEntry.FullName))
-            |> Seq.groupBy (fun (_, id) -> id.Prefix)
-            |> Seq.toList
+        | false ->
+            { Id = fileName
+              Prefix = fileName
+              Date = String.Empty
+              EntryId = String.Empty
+              AttachmentId = String.Empty
+              Extension = String.Empty }
 
-        let entries =
-            /// find the main json file of this diary entry
-            let getMainEntry =
-                Seq.tryFind
-                    (fun (_, id) ->
-                        String.IsNullOrEmpty(id.AttachmentId)
-                        && id.Extension = ".json")
+    let readZip fileName =
 
-            /// get a sequence with all attachments
-            let getAttachments =
-                Seq.filter (fun (_, id) -> not (String.IsNullOrEmpty(id.AttachmentId)))
+        let toJourneyZipEntry zipEntry =
+            { zipEntry = zipEntry
+              id = parseFileName zipEntry.FullName
+              attachments = [] }
 
-            let createJourneyZipEntry (mainEntry, mainEntryId) attachments =
-                { id = mainEntryId
-                  zipEntry = mainEntry
-                  attachments =
-                      attachments
-                      |> Seq.map
-                          (fun (entry, id) ->
-                              { id = id
-                                zipEntry = entry
-                                attachments = [] })
-                      |> Seq.toList }
+        // take a list of journey zip entries find the first main entry and attach all attachments to it 
+        let mainEntryFromGroup group =
+            let isAttachment id =
+                not (String.IsNullOrEmpty(id.AttachmentId))
 
-            zipEntryByPrefix
-            |> Seq.map
-                (fun (_, entries) ->
-                    {| mainEntryOption = getMainEntry entries
-                       attachments = getAttachments entries |})
-            |> Seq.choose
-                (fun x ->
-                    x.mainEntryOption
-                    |> Option.map (fun mainEntry -> createJourneyZipEntry mainEntry x.attachments))
-            |> Seq.toList
+            let isMainEntry id =
+                String.IsNullOrEmpty(id.AttachmentId)
+                && id.Extension = ".json"
 
-        { archive = zip; entries = entries }
+            let createMainEntry mainEntry =
+                let attachments =
+                    group
+                    |> Seq.filter (fun e -> isAttachment e.id)
+                    |> Seq.toList
 
-    with ex ->
-        zip.Dispose()
-        reraise ()
+                { mainEntry with
+                      attachments = attachments }
+
+            group
+            |> Seq.tryFind (fun e -> isMainEntry e.id)
+            |> Option.map createMainEntry
+
+
+        let zip = ZipFile.OpenRead fileName
+
+        try
+
+            let entries =
+                zip.Entries
+                |> Seq.map toJourneyZipEntry
+                |> Seq.groupBy (fun x -> x.id)
+                |> Seq.map snd
+                |> Seq.choose mainEntryFromGroup
+                |> Seq.toList
+
+            { archive = zip; entries = entries }
+
+        with
+        | ex ->
+            zip.Dispose()
+            reraise ()

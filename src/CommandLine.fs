@@ -9,8 +9,7 @@ open System.CommandLine.Parsing
 open System.IO
 open System.Reflection
 
-
-type Options =
+type CommandLineOptions =
     { InFile: FileInfo
       OutDirectory: DirectoryInfo
       OverrideExisting: bool
@@ -28,10 +27,13 @@ type Options =
       CleanFromFileNameChars: string }
 
 
-module CommandLine =
+type ExitCodeException(message: string, innerException: Exception, exitCode: int) =
+    inherit Exception(message, innerException)
+    new(message: string, innerException: Exception) = ExitCodeException(message, innerException, 1)
+    member x.ExitCode = exitCode
 
-    type Exception(message: string, innerException: System.Exception) =
-        inherit System.Exception(message, innerException)
+
+module CommandLine =
 
     /// Add a list of symbols to an item that
     let inline private addSymbols (seq: Symbol seq) (collection: ^T) =
@@ -41,16 +43,15 @@ module CommandLine =
         seq |> Seq.iter add
         collection
 
-
     let private dumpTemplateCommand (dumpTemplate: string -> int) =
         Command(
             "dump-template",
             "Dumps the default Handlebars template to the specified file",
-            Handler = CommandHandler.Create(fun outfile -> dumpTemplate outfile)
+            Handler = CommandHandler.Create(dumpTemplate)
         )
         |> addSymbols [ Argument<string>("outfile") ]
 
-    let createRootCommand (main: Options -> int) dumpTemplate =
+    let createRootCommand (main: CommandLineOptions -> int) dumpTemplate =
 
         RootCommand(
             Description = "Converts a Journey JSON ZIP Export file into Markdown",
@@ -145,7 +146,10 @@ module CommandLine =
             else
                 con.Error.WriteLine($"Error: {unwrapped.Message}")
 
-        context.ExitCode <- 1
+        context.ExitCode <-
+            match unwrapped with
+            | :? ExitCodeException as ae -> ae.ExitCode
+            | _ -> 1
 
     let invoke main dumpTemplate (argv: string []) =
         let rootCommand = createRootCommand main dumpTemplate

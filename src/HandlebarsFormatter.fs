@@ -5,11 +5,9 @@ open System.Collections.Generic
 open System.Globalization
 open System.IO
 open HandlebarsDotNet
-open HandlebarsDotNet
 open HandlebarsDotNet.Helpers
-open HandlebarsDotNet.Helpers.Enums
-open Microsoft.FSharp.Reflection
 open Newtonsoft.Json.Linq
+open journey_markdown_converter
 open journey_markdown_converter.JourneyEntryParser
 
 let defaultTemplate =
@@ -43,9 +41,19 @@ weather:
 {{/each}}
 """
 
+let createHandlebars =
+    let hb =
+        Handlebars.Create(
+            Handlebars.Configuration.Configure
+                (fun c ->
+                    c.NoEscape <- true
+                    c.FormatProvider <- CultureInfo.InvariantCulture)
+        )
 
+    HandlebarsHelpers.Register(hb)
+    hb
 
-let format (template: HandlebarsTemplate<obj, obj>) (typed: JourneyEntry, untyped: JObject) =
+let formatJourneyEntry (template: HandlebarsTemplate<obj, obj>) (typed: JourneyEntry, untyped: JObject) =
 
     let merged = Dictionary<string, Object>()
 
@@ -58,38 +66,41 @@ let format (template: HandlebarsTemplate<obj, obj>) (typed: JourneyEntry, untype
 
     template.Invoke(merged)
 
-let createFromOptions options =
-    let hb =
-        Handlebars.Create(
-            Handlebars.Configuration.Configure
-                (fun c ->
-                    c.NoEscape <- true
-                    c.FormatProvider <- CultureInfo.InvariantCulture)
-        )
-
-    HandlebarsHelpers.Register(hb)
-
-    let cleanFileName additionalChars str =
-        Path.GetInvalidFileNameChars()
-        |> Seq.append additionalChars
-        |> Seq.fold (fun (s: string) c -> s.Replace(c, ' ')) str
-        |> (fun s -> s.Trim())
-
-    let hbCompileSafe (template: string) name =
-        try
-            hb.Compile(template)
-        with
-        | e ->
-            raise (
-                CommandLine.Exception(
-                    $"Error parsing Handlebars template for {name}:{Environment.NewLine}\
+let hbCompileSafe (hb: IHandlebars) (template: string) name =
+    try
+        hb.Compile(template)
+    with
+    | e ->
+        raise (
+            ExitCodeException(
+                $"Error parsing Handlebars template for {name}:{Environment.NewLine}\
                       {Environment.NewLine}\
                       {e.Message}",
-                    e
-                )
+                e
             )
+        )
 
-    {| bodyFormatter = format (hbCompileSafe defaultTemplate "body template")
-       fileNameFormatter =
-           format (hbCompileSafe options.FileNameTemplate "file name")
-           >> cleanFileName options.CleanFromFileNameChars |}
+let createBodyFormatter hb template =
+    let compiledTemplate =
+        hbCompileSafe hb template "body template"
+
+    formatJourneyEntry compiledTemplate
+
+let cleanFileName additionalChars str =
+    Path.GetInvalidFileNameChars()
+    |> Seq.append additionalChars
+    |> Seq.fold (fun (s: string) c -> s.Replace(c, ' ')) str
+    |> (fun s -> s.Trim())
+
+let createFileNameFormatter hb cleanFromFileNameChars template =
+    let compiledTemplate =
+        hbCompileSafe hb template "body template"
+
+    formatJourneyEntry compiledTemplate
+    >> cleanFileName cleanFromFileNameChars
+
+let createFromOptions options =
+    let hb = createHandlebars
+
+    {| bodyFormatter = createBodyFormatter hb defaultTemplate
+       fileNameFormatter = createFileNameFormatter hb options.CleanFromFileNameChars options.FileNameTemplate   |}

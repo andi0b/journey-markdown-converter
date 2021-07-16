@@ -2,7 +2,7 @@
 
 type MdConverter =
     { RmdConverter: ReverseMarkdown.Converter
-      Options: Options }
+      Options: CommandLineOptions }
 
 module MdConverter =
     let convertHtml mdConverter html = mdConverter.RmdConverter.Convert html
