@@ -1,15 +1,16 @@
-﻿open System.CommandLine
-open System.IO
-open System.Reflection
-open System.Text
+﻿open System.IO
 open journey_markdown_converter
 open journey_markdown_converter.CommandLine
 open journey_markdown_converter.JourneyEntryParser
 open journey_markdown_converter.JourneyZipReader
 
+
 let mainTyped options =
 
-    let mdConverter = MdConverter.createFrmSettings options
+    let mdConverter = MdConverter.createFromOptions options
+
+    let formatters =
+        HandlebarsFormatter.createFromOptions options
 
     use zip =
         JourneyZipReader.readZip options.InFile.FullName
@@ -27,23 +28,14 @@ let mainTyped options =
             Some(new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
 
 
-
-    let bodyFormatter, fileNameFormatter =
-        let formatter =
-            HandlebarsFormatter.createFromOptions options
-
-        ((HandlebarsFormatter.format formatter.bodyTemplate),
-         (HandlebarsFormatter.format formatter.fileNameTemplate)
-         >> formatter.fileNameCleaner)
-
-
-
-    let iter entry =
+    for entry in zip.entries do
         let typed, untyped = readZipFile entry mdConverter
 
         options.OutDirectory.Create()
 
-        let fileName = fileNameFormatter (typed, untyped)
+        let fileName =
+            formatters.fileNameFormatter (typed, untyped)
+
         let fileExtension = ".md"
 
         let attachmentFileName attachment =
@@ -59,7 +51,8 @@ let mainTyped options =
 
         let typed2 = { typed with photos = photoIds }
 
-        let formatted = bodyFormatter (typed2, untyped)
+        let formatted =
+            formatters.bodyFormatter (typed2, untyped)
 
         let writeMd (stream: Stream) =
             use writer = new StreamWriter(stream)
@@ -84,17 +77,12 @@ let mainTyped options =
         |> Option.map writeAttachments
         |> ignore
 
-        ()
-
-    zip.entries |> Seq.iter iter
-
     0
 
 let dumpTemplate (file: string) =
-    System.Console.WriteLine($"Write template to file: {file}")
+    //TODO implement!
+    System.Console.WriteLine($"not implemented yet: Writing template to file: {file}")
     0
 
 [<EntryPoint>]
-let main argv =
-    let rootCommand = rootCommand mainTyped dumpTemplate
-    CommandExtensions.Invoke(rootCommand, argv)
+let main argv = invoke mainTyped dumpTemplate argv
