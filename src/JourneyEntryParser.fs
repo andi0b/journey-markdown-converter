@@ -67,15 +67,13 @@ module JourneyEntry =
                 .InZone(tz)
                 .ToDateTimeOffset()
 
-        let toMd = mdConverter |> MdConverter.convertHtml  
-
-        let preview_text_md = j.preview_text |> toMd
+        let preview_text_md = j.preview_text |> mdConverter
         let preview_text_md_oneline = preview_text_md.TrimStart([|'\n';'\r';' '|]).Split(Environment.NewLine, 2).[0]
         
         { id = j.id
           date_modified = j.date_modified |> parseDate
           date_journal = j.date_journal |> parseDate
-          text_md = j.text |> toMd
+          text_md = j.text |> mdConverter
           preview_text_md = preview_text_md
           preview_text_md_oneline = preview_text_md_oneline
           photos = j.photos

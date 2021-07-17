@@ -8,38 +8,45 @@ open journey_markdown_converter
 open journey_markdown_converter.CommandLine
 
 
-type ``Given some command line parameters check CommandLineOptions binding``() =
+type ParseResult =
+    | Options of CommandLineOptions
+    | DumpTemplatePath of string
+    | None
 
-    let getOptions (args: string) =
-        let argv =
-            args.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+let getParsed (args: string) =
+    let argv =
+        args.Split(' ', StringSplitOptions.RemoveEmptyEntries)
 
-        let mutable retval: obj Option = None
+    let mutable retval: ParseResult = None
 
-        let fakeMain options =
-            retval <- Some options
-            0
+    let fakeMain options =
+        retval <- Options options
+        0
 
-        invoke fakeMain (fun _ -> 0) argv |> ignore
+    let fakeDumpTemplate path =
+        retval <- DumpTemplatePath path
+        0
 
-        retval
-        |> Option.map (fun o -> o :?> CommandLineOptions)
+    invoke fakeMain fakeDumpTemplate argv |> ignore
 
+    retval
+
+
+type ``Given no command line parameters``() =
+    let parsed = getParsed ""
 
     [<Fact>]
-    member x.``no parameters check for expected None``() =
-        let options = getOptions ""
+    member x.``Expect result None``() = parsed |> should equal None
 
-        options |> should equal None
 
+type ``Given only infile parameter``() =
+
+    let options = getParsed "infile.zip"
 
     [<Fact>]
-    member x.``only infile check for expected default values``() =
-
-        let options = getOptions "infile.zip"
-
+    member x.``Expect default CommandLineOptions``() =
         let expected =
-            Some(
+            Options
                 { InFile = "infile.zip"
                   OutDirectory = ""
                   OverrideExisting = false
@@ -56,45 +63,85 @@ type ``Given some command line parameters check CommandLineOptions binding``() =
                   MdTableWithoutHeaderRowHandling = ReverseMarkdown.Config.TableWithoutHeaderRowHandlingOption.Default
                   MdWhitelistUriSchemes = [||]
 
-                  FileNameTemplate = """{{String.Format date_journal "yyyy-MM-dd"}} {{String.Truncate preview_text_md_oneline 100}}"""
+                  FileNameTemplate =
+                      """{{String.Format date_journal "yyyy-MM-dd"}} {{String.Truncate preview_text_md_oneline 100}}"""
                   CleanFromFileNameChars = "[]#." }
-            )
-        
+
         options |> should equal expected
-        
+
+
+type ``Given all options Expect custom options result``() =
+
+    let expectedCustomOptions =
+        Options
+            { InFile = "infile.zip"
+              OutDirectory = "../test/dir"
+              OverrideExisting = true
+              Verbose = true
+
+              AdditionalTags = [| "tag1"; "tag2" |]
+              TagPrefix = "tagprefix"
+
+              MdGithubFlavoured = true
+              MdListBulletChar = '+'
+              MdSmartHrefHandling = true
+              MdPassThroughTags = [| "span"; "div" |]
+              MdUnknownTags = ReverseMarkdown.Config.UnknownTagsOption.Drop
+              MdTableWithoutHeaderRowHandling = ReverseMarkdown.Config.TableWithoutHeaderRowHandlingOption.EmptyRow
+              MdWhitelistUriSchemes = [| "ftp"; "gopher" |]
+
+              FileNameTemplate = "myTemplate"
+              CleanFromFileNameChars = "abc" }
+
+
     [<Fact>]
-    member x.``all options check for expected custom``() =
-        let options = getOptions "--out-directory ../test/dir \
-                                  --override-existing \
-                                  --verbose \
-                                  --file-name-template myTemplate \
-                                  --additional-tags tag1 tag2 \
-                                  --tag-prefix tagprefix \
-                                  --clean-from-filename-chars abc \
-                                  infile.zip"
-        
-        let expected =
-            Some(
-                { InFile = "infile.zip"
-                  OutDirectory = "../test/dir"
-                  OverrideExisting = true
-                  Verbose = true
+    member x.``check with long argument``() =
+        let options =
+            getParsed
+                "--out-directory ../test/dir \
+                  --override-existing \
+                  --verbose \
+                  --file-name-template myTemplate \
+                  --additional-tags tag1 tag2 \
+                  --tag-prefix tagprefix \
+                  --clean-from-filename-chars abc \
+                  --md-github-flavoured \
+                  --md-list-bullet-char + \
+                  --md-smart-href-handling \
+                  --md-whitelist-uri-schemes ftp gopher \
+                  --md-pass-through-tags span div \
+                  --md-unknown-tags drop \
+                  --md-table-without-header-row-handling EmptyRow \
+                  infile.zip"
 
-                  AdditionalTags = [|"tag1";"tag2"|]
-                  TagPrefix = "tagprefix"
-
-                  MdGithubFlavoured = false
-                  MdListBulletChar = '-'
-                  MdSmartHrefHandling = false
-                  MdPassThroughTags = [||]
-                  MdUnknownTags = ReverseMarkdown.Config.UnknownTagsOption.PassThrough
-                  MdTableWithoutHeaderRowHandling = ReverseMarkdown.Config.TableWithoutHeaderRowHandlingOption.Default
-                  MdWhitelistUriSchemes = [||]
-
-                  FileNameTemplate = "myTemplate"
-                  CleanFromFileNameChars = "abc" }
-            )
-        
-        options |> should equal expected
+        options |> should equal expectedCustomOptions
 
 
+    [<Fact>]
+    member x.``check with shortcodes``() =
+        let options =
+            getParsed
+                "-o ../test/dir \
+                  -f \
+                  --verbose \
+                  --file-name-template myTemplate \
+                  -d tag1 tag2 \
+                  -p tagprefix \
+                  --clean-from-filename-chars abc \
+                  --md-github-flavoured \
+                  --md-list-bullet-char + \
+                  --md-smart-href-handling \
+                  --md-pass-through-tags span div \
+                  --md-whitelist-uri-schemes ftp gopher \
+                  --md-unknown-tags drop \
+                  --md-table-without-header-row-handling EmptyRow \
+                  infile.zip"
+
+        options |> should equal expectedCustomOptions
+
+type ``given dumpTemplate`` ()=
+    let parsed = getParsed "dump-template path.template"
+    
+    [<Fact>]
+    member x.``check dumptemplate``() =
+        parsed |> should equal (DumpTemplatePath "path.template")

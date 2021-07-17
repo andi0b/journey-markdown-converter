@@ -1,13 +1,10 @@
 ﻿namespace journey_markdown_converter
 
 type MdConverter =
-    { RmdConverter: ReverseMarkdown.Converter
-      Options: CommandLineOptions }
+    string -> string
 
 module MdConverter =
-    let convertHtml mdConverter html = mdConverter.RmdConverter.Convert html
-
-    let createFromOptions options =
+    let createFromOptions options : MdConverter =
         let config = ReverseMarkdown.Config()
         config.GithubFlavored <- options.MdGithubFlavoured
         config.ListBulletChar <- options.MdListBulletChar
@@ -17,5 +14,4 @@ module MdConverter =
         config.TableWithoutHeaderRowHandling <- options.MdTableWithoutHeaderRowHandling
         config.WhitelistUriSchemes <- options.MdWhitelistUriSchemes
 
-        { RmdConverter = ReverseMarkdown.Converter(config)
-          Options = options }
+        ReverseMarkdown.Converter(config).Convert
