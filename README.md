@@ -77,7 +77,7 @@ The Markdown output and the file name can be completely customized via Handlebar
 
 Modify the default template to get custom MarkDown files
 
-```handlebarsjs
+```handlebars
 {{!
 This is a handlebars template for formatting the output
 
