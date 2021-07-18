@@ -66,7 +66,8 @@ type ``Given only infile parameter``() =
 
                   FileNameTemplate =
                       """{{String.Format date_journal "yyyy-MM-dd"}} {{String.Truncate preview_text_md_oneline 100}}"""
-                  CleanFromFileNameChars = "[]#." }
+                  BodyTemplate = ""
+                  CleanFromFileNameChars = "[]#.," }
 
         options |> should equal expected
 
@@ -92,6 +93,7 @@ type ``Given all options Expect custom options result``() =
               MdWhitelistUriSchemes = [| "ftp"; "gopher" |]
 
               FileNameTemplate = "myTemplate"
+              BodyTemplate = "myBodyTemplate"
               CleanFromFileNameChars = "abc" }
 
 
@@ -103,6 +105,7 @@ type ``Given all options Expect custom options result``() =
                   --override-existing \
                   --verbose \
                   --file-name-template myTemplate \
+                  --body-template myBodyTemplate \
                   --additional-tags tag1 tag2 \
                   --tag-prefix tagprefix \
                   --clean-from-filename-chars abc \
@@ -124,11 +127,12 @@ type ``Given all options Expect custom options result``() =
             getParsed
                 "-o ../test/dir \
                   -f \
-                  --verbose \
-                  --file-name-template myTemplate \
+                  -v \
+                  -n myTemplate \
+                  -b myBodyTemplate \
                   -d tag1 tag2 \
                   -p tagprefix \
-                  --clean-from-filename-chars abc \
+                  -c abc \
                   --md-github-flavoured \
                   --md-list-bullet-char + \
                   --md-smart-href-handling \

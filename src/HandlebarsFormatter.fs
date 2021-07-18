@@ -135,6 +135,12 @@ let createFromOptions options =
         getPropertiesFromJourneyEntry [ ("tagPrefix", options.TagPrefix :> obj)
                                         ("additionalTags", options.AdditionalTags :> obj) ]
 
-    {| bodyFormatter = createBodyFormatter hb extractProperties defaultTemplate
+    let bodyTemplate =
+        if (String.IsNullOrWhiteSpace options.BodyTemplate) then
+            defaultTemplate
+        else
+            File.ReadAllText options.BodyTemplate
+     
+    {| bodyFormatter = createBodyFormatter hb extractProperties bodyTemplate
        fileNameFormatter =
            createFileNameFormatter hb extractProperties options.CleanFromFileNameChars options.FileNameTemplate |}

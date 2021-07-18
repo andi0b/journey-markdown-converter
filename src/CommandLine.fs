@@ -27,6 +27,7 @@ type CommandLineOptions =
       MdWhitelistUriSchemes: string array
 
       FileNameTemplate: string
+      BodyTemplate: string
       CleanFromFileNameChars: string }
 
 
@@ -65,7 +66,7 @@ module CommandLine =
             [ dumpTemplateCommand dumpTemplate
               Argument<string>("infile", "Journey JSON Export ZIP File")
               Option<string>(
-                  aliases = [| "--out-directory"; "-o" |],
+                  aliases = [| "-o"; "--out-directory" |],
                   description =
                       "Specifies the output directory, if omitted it's next to the ZIP file with the same name"
               )
@@ -80,11 +81,17 @@ module CommandLine =
                   description = "Show more information and more detailed error messages"
               )
               Option<string>(
-                  alias = "--file-name-template",
+                  aliases = [| "-n"; "--file-name-template" |],
                   getDefaultValue =
                       (fun () ->
                           """{{String.Format date_journal "yyyy-MM-dd"}} {{String.Truncate preview_text_md_oneline 100}}"""),
                   description = "File name for the created Markdown file"
+              )
+              Option<string>(
+                  aliases = [| "-b"; "--body-template" |],
+                  description =
+                      "Specify a Handlebars template file for the output file. If none specified, \
+                       the default template is used."
               )
               Option<string array>(
                   aliases = [| "-d"; "--additional-tags" |],
@@ -95,7 +102,7 @@ module CommandLine =
                   description = "Prefix that will be prepended to all tags (but not the additional tags)"
               )
               Option<string>(
-                  alias = "--clean-from-filename-chars",
+                  aliases = [| "-c"; "--clean-from-filename-chars" |],
                   getDefaultValue = (fun () -> "[]#.,"),
                   description = "Additional characters to clean from file name, forbidden characters are always cleaned"
               )
@@ -136,7 +143,7 @@ module CommandLine =
                   getDefaultValue = (fun () -> [||]),
                   description =
                       "Markdown: Specify which schemes (without trailing colon) are to be allowed for\
-                                a and img; tags. Others will be bypassed. By default allows everything."
+                                 a and img; tags. Others will be bypassed. By default allows everything."
               ) ]: Symbol list
         )
 

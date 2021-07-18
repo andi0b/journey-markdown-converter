@@ -69,7 +69,6 @@ let convertEntriesFromOptions options =
     let formatters =
         HandlebarsFormatter.createFromOptions options
 
-    
     let getOutDirectory inFile outDirectoryParameter =
     
         if (System.String.IsNullOrWhiteSpace outDirectoryParameter) then
