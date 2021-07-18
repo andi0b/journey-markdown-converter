@@ -39,9 +39,11 @@ weather:
 {{! everything else is the content of the file}}
 {{text_md}}
 
+{{#if photos.length}}
 # Photos
+{{/if}}
 {{#each photos}}
-![photo]({{this}})
+![photo]({{EscapeUri this}})
 {{/each}}
 """
 
@@ -53,6 +55,21 @@ let createHandlebars =
                     c.NoEscape <- true
                     c.FormatProvider <- CultureInfo.InvariantCulture)
         )
+
+
+
+
+    hb.RegisterHelper(
+        "EscapeUri",
+        HandlebarsHelper(
+            fun writer context parameters ->
+                let index = 0
+                let uri = parameters.At<string>(&index)
+                let escaped = Uri.EscapeDataString(uri)
+                writer.WriteSafeString(escaped)
+        )
+    )
+
 
     HandlebarsHelpers.Register(hb)
     hb

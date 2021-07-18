@@ -10,7 +10,7 @@ open journey_markdown_converter.CommandLine
 
 type ParseResult =
     | Options of CommandLineOptions
-    | DumpTemplatePath of string
+    | DumpTemplate of string
     | None
 
 let getParsed (args: string) =
@@ -23,8 +23,9 @@ let getParsed (args: string) =
         retval <- Options options
         0
 
-    let fakeDumpTemplate path =
-        retval <- DumpTemplatePath path
+    let fakeDumpTemplate outfile =
+        retval <- DumpTemplate outfile
+
         0
 
     invoke fakeMain fakeDumpTemplate argv |> ignore
@@ -139,9 +140,10 @@ type ``Given all options Expect custom options result``() =
 
         options |> should equal expectedCustomOptions
 
-type ``given dumpTemplate`` ()=
+type ``given dumpTemplate``() =
     let parsed = getParsed "dump-template path.template"
-    
+
     [<Fact>]
     member x.``check dumptemplate``() =
-        parsed |> should equal (DumpTemplatePath "path.template")
+        parsed
+        |> should equal (DumpTemplate "path.template")

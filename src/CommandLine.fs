@@ -14,7 +14,7 @@ type CommandLineOptions =
       OutDirectory: string
       OverrideExisting: bool
       Verbose: bool
-      
+
       AdditionalTags: string array
       TagPrefix: string
 
@@ -47,12 +47,13 @@ module CommandLine =
         collection
 
     let private dumpTemplateCommand (dumpTemplate: string -> int) =
+        // keep lambda with named parameter here (fun outfile->), otherwise the binding of the value fails!
         Command(
             "dump-template",
             "Dumps the default Handlebars template to the specified file",
-            Handler = CommandHandler.Create(dumpTemplate)
+            Handler = CommandHandler.Create(fun outfile -> dumpTemplate outfile)
         )
-        |> addSymbols [ Argument<string>("outfile") ]
+        |> addSymbols [ Argument<string>("outfile", (fun () -> ""), "File to dump default template to") ]
 
     let createRootCommand (main: CommandLineOptions -> int) dumpTemplate =
 
@@ -95,10 +96,10 @@ module CommandLine =
               )
               Option<string>(
                   alias = "--clean-from-filename-chars",
-                  getDefaultValue = (fun () -> "[]#."),
-                  description = "Additional characters to clean from file name "
+                  getDefaultValue = (fun () -> "[]#.,"),
+                  description = "Additional characters to clean from file name, forbidden characters are always cleaned"
               )
-              
+
               // md options
               Option<bool>(
                   alias = "--md-github-flavoured",

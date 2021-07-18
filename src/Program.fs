@@ -1,9 +1,17 @@
 ﻿open System.IO
 open journey_markdown_converter
 
-let dumpTemplate (file: string) =
-    //TODO implement!
-    System.Console.WriteLine($"not implemented yet: Writing template to file: {file}")
+let dumpTemplate outfile =
+      
+    if (File.Exists outfile) then
+        failwith "outfile already exists"
+        
+    if (System.String.IsNullOrWhiteSpace(outfile)) then
+        System.Console.WriteLine(HandlebarsFormatter.defaultTemplate)
+    else
+        System.Console.WriteLine($"Writing template to: {outfile}")
+        File.WriteAllText(outfile, HandlebarsFormatter.defaultTemplate)
+        
     0
 
 [<EntryPoint>]

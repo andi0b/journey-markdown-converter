@@ -1,20 +1,22 @@
 ﻿module journey_markdown_converter.Converter
 
 open System.IO
+open System.IO
 open journey_markdown_converter.JourneyEntryParser
+
+
+    
 
 let convertEntries
     (mdConverter: MdConverter)
     (bodyFormatter: JourneyEntry -> string)
     (fileNameFormatter: JourneyEntry -> string)
     (inFile: string)
-    (outDirectory: string)
+    (outDirectoryParameter: string)
     (openOutFile: string -> FileStream option)
     =
 
     use zip = JourneyZipReader.readZip inFile
-
-    DirectoryInfo(outDirectory).Create()
 
     let exportEntry entry =     
         let journeyEntry = readZipFile entry mdConverter
@@ -67,9 +69,26 @@ let convertEntriesFromOptions options =
     let formatters =
         HandlebarsFormatter.createFromOptions options
 
+    
+    let getOutDirectory inFile outDirectoryParameter =
+    
+        if (System.String.IsNullOrWhiteSpace outDirectoryParameter) then
+            let fromInfile = Path.ChangeExtension(inFile, System.String.Empty)
+            if (fromInfile = inFile) then
+                fromInfile + ".out"
+            else
+                fromInfile
+        else
+            outDirectoryParameter
+        |> DirectoryInfo
+        
+        
+    let outDirectoryInfo = getOutDirectory options.InFile options.OutDirectory
+    outDirectoryInfo.Create()
+    
     let openFile fileName =
         let path =
-            Path.Combine(options.OutDirectory, fileName)
+            Path.Combine(outDirectoryInfo.FullName, fileName)
 
         if (File.Exists(path) && not options.OverrideExisting) then
             System.Console.WriteLine($"Skipping file {path}, because it exists")
