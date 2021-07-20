@@ -12,10 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: List SDKs
-      run: dotnet --list-sdks
-    - name: List Runtimes
-      run: dotnet --list-runtimes
 
     - name: Setup .NET 5
       uses: actions/setup-dotnet@v1
@@ -27,31 +23,28 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
-        
-    - name: List SDKs
-      run: dotnet --list-sdks
-    - name: List Runtimes
-      run: dotnet --list-runtimes
-        
+        include-prerelease: true     
         
     - uses: actions/checkout@v2
 
-    - name: Restore dependencies
-      run: dotnet restore
-
-    - name: Cache .nuke/temp, ~/.nuget/packages
+    - name: Cache Nuke and Nuget
       uses: actions/cache@v2
       with:
         path: |
           .nuke/temp
           ~/.nuget/packages
-        key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
-    
+        key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/*.fsproj') }}
+      
     - name: Run './build.cmd Test PublishPortable'
       run: ./build.cmd Test PublishPortable
+      
+    - name: run gitversion again
+      run: /home/runner/.dotnet/dotnet /home/runner/.nuget/packages/gitversion.tool/5.6.7/tools/net5.0/any/gitversion.dll /nocache
+    @ /home/runner/work/journey-markdown-converter/journey-markdown-converter
+      if: success() || failure()        # run this step even if previous step failed
 
-    - uses: actions/upload-artifact@v1
+    - name: Upload publish artifacts
+      uses: actions/upload-artifact@v1
       with:
         name: publish
         path: publish    
