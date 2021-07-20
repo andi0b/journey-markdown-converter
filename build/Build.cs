@@ -90,6 +90,7 @@ class Build : NukeBuild
          .Executes(() =>
           {
               DotNetPublish(s => s.SetProject(MainProject)
+                                  .SetConfiguration(Configuration)
                                   .SetOutput(PublishDirectory + "/portable")
                                   .EnableNoBuild()
               );
@@ -106,6 +107,7 @@ class Build : NukeBuild
                   select new { runtime };
 
               DotNetPublish(s => s.SetProject(MainProject)
+                                  .SetConfiguration(Configuration)
                                   .EnableSelfContained()
                                   .EnablePublishSingleFile()
                                   .CombineWith(publishCombinations, (oo, v) =>
