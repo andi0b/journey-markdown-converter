@@ -36,15 +36,11 @@ jobs:
         path: |
           .nuke/temp
           ~/.nuget/packages
-        key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/*.fsproj') }}
+        key: ${{ runner.os }}-${{ hashFiles('**/packages.lock.json')}}
       
     - name: Run './build.cmd Test PublishPortable'
       run: ./build.cmd Test PublishPortable
       
-    - name: run gitversion again
-      run: /home/runner/.dotnet/dotnet /home/runner/.nuget/packages/gitversion.tool/5.6.7/tools/net5.0/any/gitversion.dll /nocache
-      if: success() || failure()        # run this step even if previous step failed
-
     - name: Upload publish artifacts
       uses: actions/upload-artifact@v1
       with:

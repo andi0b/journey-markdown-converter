@@ -1,4 +1,5 @@
 using System;
+using System.Data.SqlTypes;
 using System.Linq;
 using Nuke.Common;
 using Nuke.Common.CI;
@@ -55,7 +56,8 @@ class Build : NukeBuild
         _.Executes(() =>
         {
             DotNetRestore(s => s
-                             .SetProjectFile(Solution));
+                              .SetProjectFile(Solution)
+                              .When(Configuration == Configuration.Release, s1 => s1.EnableLockedMode()));
         });
 
     Target Compile => _ =>
