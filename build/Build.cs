@@ -18,15 +18,6 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [CheckBuildProjectConfigurations]
 [ShutdownDotNetAfterServerBuild]
-[GitHubActions(name: "NUKEBuild", 
-               image: GitHubActionsImage.UbuntuLatest, 
-               images: new GitHubActionsImage[]{},
-               On = new[] { GitHubActionsTrigger.Push },
-               InvokedTargets=new[]
-               {
-                   nameof(Test),
-                   nameof(PublishPortable)
-               })]
 class Build : NukeBuild
 {
     /// Support plugins are available for:

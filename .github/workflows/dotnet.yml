@@ -13,27 +13,37 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Setup .NET 5
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+        include-prerelease: true
+        
     - name: Setup .NET 6
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
         include-prerelease: true
+        
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-#    - name: Test
-#      run: dotnet test --no-build --verbosity normal
-#    - name: Test zyborg
-#      uses: zyborg/dotnet-tests-report@v1
-#      with:
-#        project_path: tests/
-#        report_name: tests-results
-#        report_title: journey-markdown-converter Tests 
-#        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cache .nuke/temp, ~/.nuget/packages
+      uses: actions/cache@v2
+      with:
+        path: |
+          .nuke/temp
+          ~/.nuget/packages
+        key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
     
-    - name: Test and store as TRX
-      run: dotnet test --no-build --logger trx
+    - name: Run './build.cmd Test PublishPortable'
+      run: ./build.cmd Test PublishPortable
+
+    - uses: actions/upload-artifact@v1
+      with:
+        name: publish
+        path: publish    
     
     - name: Upload test artifacts (trx)  
       uses: actions/upload-artifact@v2  # upload test results
