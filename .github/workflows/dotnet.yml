@@ -40,7 +40,6 @@ jobs:
       
     - name: run gitversion again
       run: /home/runner/.dotnet/dotnet /home/runner/.nuget/packages/gitversion.tool/5.6.7/tools/net5.0/any/gitversion.dll /nocache
-    @ /home/runner/work/journey-markdown-converter/journey-markdown-converter
       if: success() || failure()        # run this step even if previous step failed
 
     - name: Upload publish artifacts
