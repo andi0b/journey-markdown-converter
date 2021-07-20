@@ -56,8 +56,9 @@ class Build : NukeBuild
         _.Executes(() =>
         {
             DotNetRestore(s => s
-                              .SetProjectFile(Solution)
-                              .When(Configuration == Configuration.Release, s1 => s1.EnableLockedMode()));
+                             .SetProjectFile(Solution)
+                //.When(Configuration == Configuration.Release, s1 => s1.EnableLockedMode())
+            );
         });
 
     Target Compile => _ =>
