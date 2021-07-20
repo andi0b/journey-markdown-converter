@@ -199,14 +199,6 @@
           "system.memory": "4.5.4"
         }
       },
-      "System.CommandLine.Rendering": {
-        "type": "Transitive",
-        "resolved": "0.3.0-alpha.21216.1",
-        "contentHash": "KZFPrPV4/+yRvtZZyDjcdW9oMOpX7+gHO9kNmHmNFgoXIyedc/PNN1fKa3UD1OX61sibMslyBIsV9QUFpcELiA==",
-        "dependencies": {
-          "System.CommandLine": "2.0.0-beta1.21216.1"
-        }
-      },
       "System.Diagnostics.Debug": {
         "type": "Transitive",
         "resolved": "4.0.11",
@@ -653,8 +645,7 @@
           "Newtonsoft.Json": "9.0.1",
           "NodaTime": "3.0.5",
           "ReverseMarkdown": "3.19.0",
-          "System.CommandLine": "2.0.0-beta1.21308.1",
-          "System.CommandLine.Rendering": "0.3.0-alpha.21216.1"
+          "System.CommandLine": "2.0.0-beta1.21308.1"
         }
       }
     }

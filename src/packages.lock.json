@@ -84,15 +84,6 @@
           "system.memory": "4.5.4"
         }
       },
-      "System.CommandLine.Rendering": {
-        "type": "Direct",
-        "requested": "[0.3.0-alpha.21216.1, )",
-        "resolved": "0.3.0-alpha.21216.1",
-        "contentHash": "KZFPrPV4/+yRvtZZyDjcdW9oMOpX7+gHO9kNmHmNFgoXIyedc/PNN1fKa3UD1OX61sibMslyBIsV9QUFpcELiA==",
-        "dependencies": {
-          "System.CommandLine": "2.0.0-beta1.21216.1"
-        }
-      },
       "Handlebars.Net.Helpers.Core": {
         "type": "Transitive",
         "resolved": "2.2.0",
