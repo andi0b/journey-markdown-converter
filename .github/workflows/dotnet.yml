@@ -38,18 +38,19 @@ jobs:
           ~/.nuget/packages
         key: ${{ runner.os }}-${{ hashFiles('**/packages.lock.json')}}
       
-    - name: Run './build.cmd Test PublishPortable'
-      run: ./build.cmd Test PublishPortable
+    - name: Run './build.cmd QuickCi'
+      run: ./build.cmd Test QuickCi
       
-    - name: Upload publish artifacts
-      uses: actions/upload-artifact@v1
-      with:
-        name: publish
-        path: publish    
-    
-    - name: Upload test artifacts (trx)  
-      uses: actions/upload-artifact@v2  # upload test results
+    - name: Upload test artifacts (trx)
+      uses: actions/upload-artifact@v2  
       if: success() || failure()        # run this step even if previous step failed
       with:
         name: test-results
-        path: tests/TestResults/*trx  
+        path: tests/TestResults/*trx
+        
+    - name: Upload deliverables artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: deliverables
+        path: deliverables    
+    

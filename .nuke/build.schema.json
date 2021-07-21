@@ -71,10 +71,17 @@
           "items": {
             "type": "string",
             "enum": [
+              "ArchivePublished",
               "Clean",
+              "CleanDeliverables",
+              "CleanPublished",
               "Compile",
+              "CreateDeliverables",
+              "CreatePortableDeliverable",
+              "FullCi",
               "PublishPortable",
               "PublishSelfContained",
+              "QuickCi",
               "Restore",
               "Test"
             ]
@@ -90,10 +97,17 @@
           "items": {
             "type": "string",
             "enum": [
+              "ArchivePublished",
               "Clean",
+              "CleanDeliverables",
+              "CleanPublished",
               "Compile",
+              "CreateDeliverables",
+              "CreatePortableDeliverable",
+              "FullCi",
               "PublishPortable",
               "PublishSelfContained",
+              "QuickCi",
               "Restore",
               "Test"
             ]

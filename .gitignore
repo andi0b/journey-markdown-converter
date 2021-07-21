@@ -35,3 +35,4 @@ _ReSharper*/
 #Nuget packages folder
 packages/
 /publish
+/deliverables
