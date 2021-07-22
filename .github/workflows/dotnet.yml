@@ -44,8 +44,8 @@ jobs:
       
     - name: Create release draft
       uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
       with:
-        prerelease: true
         draft: true
         files: deliverables/*
         body: release description
