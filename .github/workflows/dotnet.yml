@@ -39,7 +39,20 @@ jobs:
         key: ${{ runner.os }}-${{ hashFiles('**/packages.lock.json')}}
       
     - name: Run './build.cmd QuickCi'
+      id: build
       run: ./build.cmd Test QuickCi
+      
+    - name: Create release draft
+      uses: softprops/action-gh-release@v1
+      with:
+        prerelease: true
+        draft: true
+        files: deliverables/*
+        body: release description
+        name:  ${{ steps.build.outputs.SemVer }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
       
     - name: Upload test artifacts (trx)
       uses: actions/upload-artifact@v2  

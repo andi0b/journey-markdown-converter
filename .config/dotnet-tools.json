@@ -7,6 +7,12 @@
       "commands": [
         "nuke"
       ]
+    },
+    "gitversion.tool": {
+      "version": "5.6.10",
+      "commands": [
+        "dotnet-gitversion"
+      ]
     }
   }
 }
