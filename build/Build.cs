@@ -62,6 +62,7 @@ class Build : NukeBuild
         Logger.Log(LogLevel.Normal, $"Configuration = {Configuration}");
 
         Console.WriteLine($"::set-output name={nameof(GitVersion.SemVer)}::{GitVersion.SemVer}");
+        Console.WriteLine($"::set-output name=IsRelease::{(IsReleaseVersion ? "true" : "false")}");
     }
 
     Target Clean => _ =>
@@ -201,7 +202,7 @@ class Build : NukeBuild
                         .SetTag(tags)
                         .EnableLoad());
           });
-
+    
 
     Target QuickCi => _ =>
         _.DependsOn(Test, CreatePortableDeliverable);
