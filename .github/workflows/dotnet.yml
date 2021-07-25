@@ -29,7 +29,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: '0'
-
+        
     - name: Cache Nuke and Nuget
       uses: actions/cache@v2
       with:
@@ -38,9 +38,9 @@ jobs:
           ~/.nuget/packages
         key: ${{ runner.os }}-${{ hashFiles('**/packages.lock.json')}}
       
-    - name: Run './build.cmd QuickCi'
+    - name: Run './build.cmd'
       id: build
-      run: ./build.cmd Test QuickCi
+      run: ./build.cmd Test ${{ startsWith(github.ref, 'refs/tags/') && 'FullCi' || 'QuickCi' }}
       
     - name: Create release draft
       uses: softprops/action-gh-release@v1
@@ -52,7 +52,6 @@ jobs:
         name:  ${{ steps.build.outputs.SemVer }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
       
     - name: Upload test artifacts (trx)
       uses: actions/upload-artifact@v2  
