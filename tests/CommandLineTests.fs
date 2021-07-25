@@ -55,6 +55,7 @@ type ``Given only infile parameter``() =
 
                   AdditionalTags = [||]
                   TagPrefix = ""
+                  SetFileTimes = false
 
                   MdGithubFlavoured = false
                   MdListBulletChar = '-'
@@ -83,6 +84,7 @@ type ``Given all options Expect custom options result``() =
 
               AdditionalTags = [| "tag1"; "tag2" |]
               TagPrefix = "tagprefix"
+              SetFileTimes = true
 
               MdGithubFlavoured = true
               MdListBulletChar = '+'
@@ -109,6 +111,7 @@ type ``Given all options Expect custom options result``() =
                   --additional-tags tag1 tag2 \
                   --tag-prefix tagprefix \
                   --clean-from-filename-chars abc \
+                  --set-file-times \
                   --md-github-flavoured \
                   --md-list-bullet-char + \
                   --md-smart-href-handling \
@@ -133,6 +136,7 @@ type ``Given all options Expect custom options result``() =
                   -d tag1 tag2 \
                   -p tagprefix \
                   -c abc \
+                  -t \
                   --md-github-flavoured \
                   --md-list-bullet-char + \
                   --md-smart-href-handling \

@@ -17,6 +17,7 @@ type CommandLineOptions =
 
       AdditionalTags: string array
       TagPrefix: string
+      SetFileTimes: bool
 
       MdGithubFlavoured: bool
       MdListBulletChar: char
@@ -105,6 +106,10 @@ module CommandLine =
                   aliases = [| "-c"; "--clean-from-filename-chars" |],
                   getDefaultValue = (fun () -> "[]#.,"),
                   description = "Additional characters to clean from file name, forbidden characters are always cleaned"
+              )
+              Option<bool>(
+                  aliases = [| "-t"; "--set-file-times" |],
+                  description = "Sets the created and modified date to the dates inside the Journey entry"
               )
 
               // md options

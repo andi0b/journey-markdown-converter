@@ -56,20 +56,15 @@ let createHandlebars =
                     c.FormatProvider <- CultureInfo.InvariantCulture)
         )
 
-
-
-
     hb.RegisterHelper(
         "EscapeUri",
-        HandlebarsHelper(
-            fun writer context parameters ->
+        HandlebarsHelper
+            (fun writer context parameters ->
                 let index = 0
                 let uri = parameters.At<string>(&index)
                 let escaped = Uri.EscapeDataString(uri)
-                writer.WriteSafeString(escaped)
-        )
+                writer.WriteSafeString(escaped))
     )
-
 
     HandlebarsHelpers.Register(hb)
     hb
@@ -140,7 +135,7 @@ let createFromOptions options =
             defaultTemplate
         else
             File.ReadAllText options.BodyTemplate
-     
+
     {| bodyFormatter = createBodyFormatter hb extractProperties bodyTemplate
        fileNameFormatter =
            createFileNameFormatter hb extractProperties options.CleanFromFileNameChars options.FileNameTemplate |}
