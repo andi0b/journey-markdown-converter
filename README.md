@@ -1,23 +1,15 @@
-# 🔴 Work in Progress 🔴
-
-Some things work, others don't. There is no release yet, for now you need to build&run it by yourself. 
-
-install .NET SDK 6.x (preview) and run
-```
-git clone https://github.com/andi0b/journey-markdown-converter.git
-cd journey-markdown-converter/src
-dotnet run -- <parameters>
-```
-
-
 # Convert Journey.Cloud data to Markdown
 
 This command line tool takes your export from [Journey.Cloud](https://journey.cloud/) and converts it to a folder of markdowns. It preserves all pictures and data, and lets you customize the output.
 
+Open the Journey App and export entries as JSON. You will get a .ZIP file that can be converted with this tool.
+
+This was tested with Journey Windows 2.14.3 (Settings -> Database -> Mass-Export)
+
 [![.NET](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml/badge.svg)](https://github.com/andi0b/journey-markdown-converter/actions/workflows/dotnet.yml)
 
 # How to run
-Download a binary for one of the supported platforms:
+[Download a binary](https://github.com/andi0b/journey-markdown-converter/releases) for one of the supported platforms:
 - Windows x86
 - Linux x64
 - macOS x64
@@ -65,6 +57,9 @@ Options:
 Commands:
   dump-template <outfile>  Dumps the default Handlebars template to the specified file [default: ]
 ```
+
+## Portable build
+Or download the .NET 6 Runtime and use the portable build on any platform.
 
 # Handlebars Templates
 
