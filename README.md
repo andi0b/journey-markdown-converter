@@ -12,8 +12,9 @@ This was tested with Journey Windows 2.14.3 (Settings -> Database -> Mass-Export
 [Download a binary](https://github.com/andi0b/journey-markdown-converter/releases) for one of the supported platforms:
 - Windows x86
 - Linux x64
-- macOS x64
-- macOS ARM
+- macOS x64/ARM (**There is still an issue with macOS support, see #2**)
+
+
 
 and run it:
 ```
